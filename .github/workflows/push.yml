@@ -37,25 +37,25 @@ jobs:
        # Detect the platform (similar to $OSTYPE)
         OS="`uname`"
         case $OS in
-          'Linux')
+          'linux*')
             OS='Linux'
             echo "INSTALL LINUX DEPS"
             alias ls='ls --color=auto'
-            sudo apt-get install -y git build-essential cmake swig libudev-dev curl unzip tar
+            sudo apt-get install -y git build-essential cmake swig libudev-dev curl unzip tar gcc6
             ./bootstrap-vcpkg.sh
             ./vcpkg integrate install
             ;;
-          'WindowsNT')
+          'msys*')
             OS='Windows'
             echo "INSTALL Windows DEPS"
             bootstrap-vcpkg.bat
             ./vcpkg integrate install
-            choco install cmake make wget
+            choco install cmake make wget swig
             ;;
           'Darwin') 
             OS='Mac'
             echo "INSTALL MacOS DEPS"
-            brew install gcc6
+            brew install gcc6 cmake swig
             ./bootstrap-vcpkg.sh
             ./vcpkg integrate install
             ;;
