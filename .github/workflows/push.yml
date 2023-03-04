@@ -11,11 +11,11 @@ on:
 jobs:
   build:
 
-    runs-on: matrix.os
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
@@ -29,18 +29,45 @@ jobs:
       run: |
         git clone https://github.com/NordicPlayground/vcpkg.git
         cd vcpkg
-        if [ ${{ matrix.os }} == 'windows-latest' ]
-        then
-           .\bootstrap-vcpkg.bat
-           sudo ./vcpkg integrate install
-           PS> 
-           choco install cmake make wget
-        else
-           ./bootstrap-vcpkg.sh
-           .\vcpkg integrate install
-        fi
+        # Detect the platform (similar to $OSTYPE)
+        OS="`uname`"
+        case $OS in
+          'Linux')
+            OS='Linux'
+            alias ls='ls --color=auto'
+            apt-get install -y git build-essential cmake swig libudev-dev curl unzip tar
+            ./bootstrap-vcpkg.sh
+            ./vcpkg integrate install
+            ;;
+          'WindowsNT')
+            OS='Windows'       
+            .\bootstrap-vcpkg.bat
+            sudo ./vcpkg integrate install
+            choco install cmake make wget
+            ;;
+          'Darwin') 
+            OS='Mac'
+            ./bootstrap-vcpkg.sh
+            ./vcpkg integrate install
+            ;;
+          *) ;;
+        esac
+        vcpkg install asio catch2 spdlog
+        # install driver
+        vcpkg install pc-ble-driver
         pip install -r requirements-dev.txt
      
     - name: build
       run: |
         python setup.py bdist_wheel --build-type Release
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+         name: pc_ble_driver_py-${{ matrix.os }}
+         path: "dist/*.whl"
+         if-no-files-found: error
+
+        name: rdata_${{ matrix.os }}
+        path: build/rdata*
+        if-no-files-found: error
