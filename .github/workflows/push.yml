@@ -38,7 +38,7 @@ jobs:
         OS="`uname`"
         echo $OS
         case $OS in
-          'linux*')
+          'Linux')
             OS='Linux'
             echo "INSTALL LINUX DEPS"
             alias ls='ls --color=auto'
@@ -46,7 +46,7 @@ jobs:
             ./bootstrap-vcpkg.sh
             ./vcpkg integrate install
             ;;
-          'msys*')
+          'MINGW64_NT*')
             OS='Windows'
             echo "INSTALL Windows DEPS"
             bootstrap-vcpkg.bat
