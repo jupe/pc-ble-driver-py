@@ -42,11 +42,11 @@ jobs:
             OS='Linux'
             echo "INSTALL LINUX DEPS"
             alias ls='ls --color=auto'
-            sudo apt-get install -y git build-essential cmake swig libudev-dev curl unzip tar gcc6
+            sudo apt-get install -y git build-essential cmake swig libudev-dev curl unzip tar
             ./bootstrap-vcpkg.sh
             ./vcpkg integrate install
             ;;
-          'MINGW64_NT*')
+          'MINGW64_NT-10.0-20348')
             OS='Windows'
             echo "INSTALL Windows DEPS"
             bootstrap-vcpkg.bat
