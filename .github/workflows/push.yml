@@ -30,15 +30,13 @@ jobs:
         repository: NordicPlayground/vcpkg.git
         ref: master
         path: vcpkg
-    - name: Install vcpkg
+    - name: Install dependencies
       shell: bash
       working-directory: vcpkg
       run: |
-       # Detect the platform (similar to $OSTYPE)
-        OS="`uname`"
-        echo $OS
-        case $OS in
-          'Linux')
+       # Detect the platform 
+        case ${{ matrix.os }} in
+          'ubuntu-latest')
             OS='Linux'
             echo "INSTALL LINUX DEPS"
             alias ls='ls --color=auto'
@@ -46,14 +44,14 @@ jobs:
             ./bootstrap-vcpkg.sh
             ./vcpkg integrate install
             ;;
-          'MINGW64_NT-10.0-20348')
+          'windows-latest')
             OS='Windows'
             echo "INSTALL Windows DEPS"
             bootstrap-vcpkg.bat
-            ./vcpkg integrate install
+            .\vcpkg integrate install
             choco install cmake make wget swig
             ;;
-          'Darwin') 
+          'macos-latest') 
             OS='Mac'
             echo "INSTALL MacOS DEPS"
             brew install gcc6 cmake swig
