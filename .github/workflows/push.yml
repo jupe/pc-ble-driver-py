@@ -48,13 +48,13 @@ jobs:
             OS='Windows'
             echo "INSTALL Windows DEPS"
             bootstrap-vcpkg.bat
-            .\vcpkg integrate install
+            ./vcpkg integrate install
             choco install cmake make wget swig
             ;;
           'macos-latest') 
             OS='Mac'
             echo "INSTALL MacOS DEPS"
-            brew install gcc6 cmake swig
+            brew install gcc@6 cmake swig
             ./bootstrap-vcpkg.sh
             ./vcpkg integrate install
             ;;
