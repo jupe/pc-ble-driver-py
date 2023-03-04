@@ -57,16 +57,12 @@ jobs:
         vcpkg install pc-ble-driver
         pip install -r requirements-dev.txt
      
-    - name: build
+    - name: build wheel
       run: |
-         python setup.py bdist_wheel --build-type Release
+        python setup.py bdist_wheel --build-type Release
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
          name: pc_ble_driver_py-${{ matrix.os }}
          path: "dist/*.whl"
          if-no-files-found: error
-
-        name: rdata_${{ matrix.os }}
-        path: build/rdata*
-        if-no-files-found: error
