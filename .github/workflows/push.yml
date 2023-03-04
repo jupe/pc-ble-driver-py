@@ -1,0 +1,46 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: push
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: matrix.os
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      shell: bash
+      run: |
+        git clone https://github.com/NordicPlayground/vcpkg.git
+        cd vcpkg
+        if [ ${{ matrix.os }} == 'windows-latest' ]
+        then
+           .\bootstrap-vcpkg.bat
+           sudo ./vcpkg integrate install
+           PS> 
+           choco install cmake make wget
+        else
+           ./bootstrap-vcpkg.sh
+           .\vcpkg integrate install
+        fi
+        pip install -r requirements-dev.txt
+     
+    - name: build
+      run: |
+        python setup.py bdist_wheel --build-type Release
