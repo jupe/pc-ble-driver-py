@@ -40,7 +40,7 @@ jobs:
             OS='Linux'
             echo "INSTALL LINUX DEPS"
             alias ls='ls --color=auto'
-            sudo apt-get install -y git build-essential cmake swig libudev-dev curl unzip tar
+            sudo apt-get install -y git build-essential cmake swig libudev-dev curl unzip tar ninja-build
             ./bootstrap-vcpkg.sh
             ./vcpkg integrate install
             ;;
@@ -49,17 +49,18 @@ jobs:
             echo "INSTALL Windows DEPS"
             bootstrap-vcpkg.bat
             ./vcpkg integrate install
-            choco install cmake make wget swig
+            choco install cmake make wget swig ninja
             ;;
           'macos-latest') 
             OS='Mac'
             echo "INSTALL MacOS DEPS"
-            brew install gcc@6 cmake swig
+            brew install gcc@6 cmake swig ninja
             ./bootstrap-vcpkg.sh
             ./vcpkg integrate install
             ;;
           *) ;;
         esac
+        export PATH=$PATH:$(pwd)
         vcpkg install asio catch2 spdlog
         # install driver
         vcpkg install pc-ble-driver
