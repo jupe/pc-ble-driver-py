@@ -59,8 +59,7 @@ jobs:
      
     - name: build
       run: |
-        python setup.py bdist_wheel --build-type Release
-
+         python setup.py bdist_wheel --build-type Release
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
