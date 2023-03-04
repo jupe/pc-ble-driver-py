@@ -36,6 +36,7 @@ jobs:
       run: |
        # Detect the platform (similar to $OSTYPE)
         OS="`uname`"
+        echo $OS
         case $OS in
           'linux*')
             OS='Linux'
