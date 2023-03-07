@@ -34,7 +34,9 @@ jobs:
       shell: bash
       working-directory: vcpkg
       run: |
-       # Detect the platform 
+        export PATH=$PATH:$(pwd)
+        export VCPKG_ROOT=$(pwd)
+        # Detect the platform 
         case ${{ matrix.os }} in
           'ubuntu-latest')
             OS='Linux'
@@ -60,7 +62,7 @@ jobs:
             ;;
           *) ;;
         esac
-        export PATH=$PATH:$(pwd)
+        echo "Install vcpkg packages"
         vcpkg install asio catch2 spdlog
         # install driver
         vcpkg install pc-ble-driver
