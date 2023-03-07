@@ -1,0 +1,79 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: push
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        path: pc-ble-driver-py
+    - uses: actions/checkout@v3
+      with:
+        repository: NordicPlayground/vcpkg.git
+        ref: master
+        path: vcpkg
+    - name: Install dependencies
+      shell: bash
+      working-directory: vcpkg
+      run: |
+        export PATH=$PATH:$(pwd)
+        export VCPKG_ROOT=$(pwd)
+        # Detect the platform 
+        case ${{ matrix.os }} in
+          'ubuntu-latest')
+            OS='Linux'
+            echo "INSTALL LINUX DEPS"
+            alias ls='ls --color=auto'
+            sudo apt-get install -y git build-essential cmake swig libudev-dev curl unzip tar ninja-build
+            ./bootstrap-vcpkg.sh
+            ./vcpkg integrate install
+            ;;
+          'windows-latest')
+            OS='Windows'
+            echo "INSTALL Windows DEPS"
+            bootstrap-vcpkg.bat
+            ./vcpkg integrate install
+            choco install cmake make wget swig ninja
+            ;;
+          'macos-latest') 
+            OS='Mac'
+            echo "INSTALL MacOS DEPS"
+            brew install gcc@6 cmake swig ninja
+            ./bootstrap-vcpkg.sh
+            ./vcpkg integrate install
+            ;;
+          *) ;;
+        esac
+        echo "Install vcpkg packages"
+        vcpkg install asio catch2 spdlog
+        # install driver
+        vcpkg install pc-ble-driver
+        pip install -r ../pc-ble-driver-py/requirements-dev.txt    
+    - name: build wheel
+      working-directory: pc-ble-driver-py
+      run: |
+        python setup.py bdist_wheel --build-type Release
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+         name: pc_ble_driver_py-${{ matrix.os }}
+         path: "dist/*.whl"
+         if-no-files-found: error
